@@ -7,7 +7,32 @@ any multi-view analysis (3D tracking, triangulation, ...) depends on.
 
 ---
 
-## Requirements
+## Installation
+
+### Linux: installer
+
+Each [release](../../releases) has a package for Ubuntu 22.04 or newer and Debian 12
+or newer:
+
+```bash
+sudo apt install ./syncrec_<version>_all.deb
+```
+
+apt also installs Python, ffmpeg and the libraries the GUI needs. **Installing needs
+internet access**: the package then downloads the Python packages the recorder uses
+(pypylon, NumPy, PySide6) from [PyPI](https://pypi.org) into its own environment in
+`/opt/syncrec/venv`; they are not part of the package.
+
+The recorder then appears in the applications menu as *Synchronized Multi-Camera
+Recorder*, and `syncrec` works in a terminal wherever `python -m syncrec` is used
+below (`syncrec --help`). Installed this way, **Save as default** writes
+`~/.config/syncrec/settings.json`, so every user account has its own defaults.
+
+`sudo dpkg-reconfigure syncrec` downloads the Python packages again (e.g. after a
+distribution upgrade changed the Python version). `sudo apt remove syncrec` removes
+everything except the users' settings.
+
+### From source: Linux and Windows
 
 * **Python 3.9 or newer.**
 * **ffmpeg**, which does the video encoding. It must be on the `PATH`, or set its
@@ -16,22 +41,29 @@ any multi-view analysis (3D tracking, triangulation, ...) depends on.
   `python -m syncrec encoders` shows whether it is found and which encoders work.
 * **The Python packages** in `requirements.txt`: pypylon (Basler's camera SDK, which
   includes the pylon runtime and the camera emulator), NumPy, and PySide6 for the GUI.
-* **Basler cameras** (GigE or USB3). Without cameras, see
-  [Working without cameras](#working-without-cameras).
+
+From the repository folder:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Run from source, **Save as default** writes `settings.json` in the repository folder.
+
+You also need **Basler cameras** (GigE or USB3). Without cameras, see
+[Working without cameras](#working-without-cameras).
 
 ---
 
 ## Quick start
 
-Run these from the repository folder:
-
 ```bash
-python -m pip install -r requirements.txt
-
 python -m syncrec                        # GUI
 python -m syncrec list                   # what cameras can I see?
 python -m syncrec record --duration 60   # headless, 60 seconds
 ```
+
+(With the Linux installer: `syncrec`, `syncrec list`, ...)
 
 ### Using the GUI
 
@@ -168,8 +200,8 @@ records four seconds in each sync mode and asserts the synchronised ones land in
 
 ## Configuration
 
-One JSON file holds everything. `settings.json` (next to the `syncrec` folder) is
-loaded automatically by the GUI and the command line, wherever they are started
+One JSON file holds everything. `settings.json` (next to the `syncrec` folder, or
+`~/.config/syncrec/` with the Linux installer) is loaded automatically by the GUI and the command line, wherever they are started
 from; `-c other.json` uses another file instead. Without `settings.json` the built-in
 defaults (in `syncrec/config.py`) apply. `settings.json` belongs to one recording
 machine, so it is not part of the repository (see `.gitignore`). `config.example.json` shows per-camera
@@ -369,6 +401,9 @@ syncrec/
 tools/
   check_sync.py   verify a finished recording
   selftest.py     record in every sync mode with dummies and check the result
+packaging/linux/  builds the Linux installer (build.sh) and tests it (test_package.sh)
+.github/workflows/linux-installer.yml
+                  runs both when a release is published and attaches the files
 ```
 
 Each camera gets two threads: one that does nothing but pull frames out of the driver,

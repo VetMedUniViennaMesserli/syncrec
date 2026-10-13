@@ -1,0 +1,15 @@
+#!/bin/sh
+# Runs after the package's files are removed: also remove what postinst created
+# (the Python environment and compiled files), which dpkg does not know about.
+# Users' settings in ~/.config/syncrec are left alone.
+set -e
+
+case "$1" in
+    remove|purge)
+        rm -rf /opt/syncrec/venv
+        find /opt/syncrec -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
+        find /opt/syncrec -depth -type d -empty -delete 2>/dev/null || true
+        ;;
+esac
+
+exit 0

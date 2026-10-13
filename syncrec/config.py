@@ -1,9 +1,10 @@
 """Configuration schema for the multi-camera recorder.
 
-A whole recording setup is one JSON file (see config.example.json). settings.json, next
-to the syncrec package, is loaded automatically when no other file is given; without it
-the defaults below apply. Everything the operator can tune -- resolution, frame rate, sync strategy, ffmpeg codec, per-camera
-overrides -- lives there, so the recording machine is configured by copying one file.
+A whole recording setup is one JSON file (see config.example.json). settings.json is
+loaded automatically when no other file is given (see DEFAULT_CONFIG_PATH); without it
+the defaults below apply. Everything the operator can tune -- resolution, frame rate,
+sync strategy, ffmpeg codec, per-camera overrides -- lives there, so the recording
+machine is configured by copying one file.
 """
 from __future__ import annotations
 
@@ -16,11 +17,24 @@ from typing import Any, Dict, List, Optional, Union, get_args, get_origin, get_t
 SYNC_MODES = ("auto", "ptp_action", "hardware_trigger", "software_trigger", "freerun")
 BACKENDS = ("auto", "pylon", "dummy")
 
-# settings.json next to the syncrec package, wherever the program is started from.
-# It is local to each recording machine ("Save as default" in the GUI writes it) and
-# not part of the repository.
-DEFAULT_CONFIG_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings.json")
+
+
+def _settings_path() -> str:
+    """Where settings.json lives ("Save as default" in the GUI writes it).
+
+    The SYNCREC_SETTINGS environment variable, if set: the Linux installer's
+    `syncrec` command sets it to a per-user file (~/.config/syncrec/settings.json),
+    because the program folder is not writable. Otherwise next to the syncrec
+    package, wherever the program is started from (not part of the repository).
+    """
+    path = os.environ.get("SYNCREC_SETTINGS")
+    if path:
+        return os.path.abspath(os.path.expanduser(path))
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "settings.json")
+
+
+DEFAULT_CONFIG_PATH = _settings_path()
 
 
 @dataclass
@@ -187,6 +201,8 @@ class RecorderConfig:
         return asdict(self)
 
     def save(self, path: str) -> None:
+        folder = os.path.dirname(os.path.abspath(path))
+        os.makedirs(folder, exist_ok=True)
         tmp = path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
             json.dump(self.to_dict(), fh, indent=2)

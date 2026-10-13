@@ -1,0 +1,4 @@
+# Files used on Linux must keep LF line endings, also when checked out on Windows.
+*.sh                text eol=lf
+*.yml               text eol=lf
+packaging/linux/*   text eol=lf

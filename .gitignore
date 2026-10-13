@@ -10,3 +10,7 @@ venv/
 settings.json
 config.json
 recordings/
+
+# Installer build output (packaging/linux/build.sh)
+build/
+dist/

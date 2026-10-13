@@ -1,0 +1,93 @@
+# Builds the Linux installer whenever a release is published, tests it, and attaches
+# it to the release:
+#   syncrec_<version>_all.deb       sudo apt install ./syncrec_<version>_all.deb
+#
+# The package contains only this repository's code; its Python packages are
+# downloaded from PyPI during installation (see packaging/linux/build.sh).
+#
+# The version comes from the release tag (v1.2.0 -> 1.2.0). "Run workflow" on the
+# Actions tab builds and tests without a release; the package is then kept as a
+# workflow artifact instead.
+name: Linux installer
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number for a test build"
+        required: true
+        default: "0.0.0~test"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set the version
+        id: version
+        env:
+          RAW_VERSION: ${{ github.event.release.tag_name || inputs.version }}
+        run: echo "version=${RAW_VERSION#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        env:
+          MAINTAINER: "${{ github.repository_owner }} <noreply@github.com>"
+          HOMEPAGE: "${{ github.server_url }}/${{ github.repository }}"
+        run: bash packaging/linux/build.sh "${{ steps.version.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: syncrec-${{ steps.version.outputs.version }}-deb
+          path: dist/*.deb
+
+  test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest supported Ubuntu (Python 3.10) and the current LTS.
+        os: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: syncrec-${{ needs.build.outputs.version }}-deb
+          path: dist
+
+      - name: Install the package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb ./dist/syncrec_*.deb
+
+      - name: Test the installed program
+        run: bash packaging/linux/test_package.sh
+
+      - name: Remove the package
+        run: |
+          sudo apt-get remove -y syncrec
+          test ! -e /opt/syncrec || { ls -R /opt/syncrec; exit 1; }
+
+  release:
+    needs: [build, test]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # attach the package to the release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: syncrec-${{ needs.build.outputs.version }}-deb
+          path: dist
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" dist/*.deb --clobber --repo "${{ github.repository }}"

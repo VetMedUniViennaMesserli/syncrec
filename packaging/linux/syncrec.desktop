@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Synchronized Multi-Camera Recorder
+GenericName=Multi-camera recorder
+Comment=Record frame-synchronised videos from several Basler cameras
+Exec=syncrec gui
+Icon=camera-video
+Terminal=false
+Categories=AudioVideo;Video;Recorder;

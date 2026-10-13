@@ -1,0 +1,35 @@
+#!/bin/sh
+# Runs after the package is unpacked: create the recorder's own Python environment
+# and download its Python packages (pypylon, NumPy, PySide6) from PyPI. They are not
+# part of the package, so installing needs internet access.
+set -e
+
+APP=/opt/syncrec
+VENV="$APP/venv"
+
+case "$1" in
+    configure)
+        echo "syncrec: setting up the Python environment in $VENV ..."
+        rm -rf "$VENV"
+        python3 -m venv "$VENV"
+        if ! "$VENV/bin/python" -m pip install --disable-pip-version-check \
+                --no-input --quiet --upgrade pip \
+            || ! "$VENV/bin/python" -m pip install --disable-pip-version-check \
+                --no-input -r "$APP/app/requirements.txt"; then
+            cat >&2 <<'EOF'
+
+syncrec: could not download the Python packages from PyPI (pypi.org).
+Check the internet connection. Behind a proxy or a network that inspects HTTPS,
+configure pip system-wide in /etc/pip.conf (proxy = ..., cert = ...), see
+https://pip.pypa.io/en/stable/topics/configuration/
+Then finish the installation with:
+    sudo dpkg --configure -a
+EOF
+            exit 1
+        fi
+        "$VENV/bin/python" -m compileall -q "$APP/app" > /dev/null || true
+        echo "syncrec: ready. Start it from the applications menu or with 'syncrec'."
+        ;;
+esac
+
+exit 0

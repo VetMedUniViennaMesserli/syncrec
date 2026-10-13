@@ -1,0 +1,16 @@
+Package: syncrec
+Version: @VERSION@
+Section: video
+Priority: optional
+Architecture: all
+Maintainer: @MAINTAINER@
+Installed-Size: @SIZE@
+Depends: python3 (>= 3.9), python3-venv, ffmpeg, libxcb-cursor0, libxkbcommon-x11-0, libxcb-icccm4, libxcb-keysyms1, libxcb-image0, libxcb-render-util0, libxcb-shape0, libegl1, libgl1, libfontconfig1, libdbus-1-3
+Description: Synchronized multi-camera video recorder for Basler cameras
+ Records frame-synchronised videos from several Basler cameras (PTP with
+ scheduled action commands, hardware trigger, software trigger or free run),
+ one video per camera plus per-frame timing data that shows the cameras were in
+ sync. Includes a GUI with live preview and a command line (`syncrec --help`).
+ .
+ The Python packages it needs (pypylon, NumPy, PySide6) are downloaded from PyPI
+ during installation, into a private environment in /opt/syncrec/venv.

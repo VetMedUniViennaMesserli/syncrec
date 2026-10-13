@@ -1,0 +1,7 @@
+#!/bin/sh
+# The `syncrec` command of the Linux package: runs the recorder installed in
+# /opt/syncrec with its own Python environment (made by the package's postinst).
+# Settings are per user, because /opt is not writable.
+export SYNCREC_SETTINGS="${SYNCREC_SETTINGS:-${XDG_CONFIG_HOME:-$HOME/.config}/syncrec/settings.json}"
+export PYTHONPATH="/opt/syncrec/app${PYTHONPATH:+:$PYTHONPATH}"
+exec /opt/syncrec/venv/bin/python -m syncrec "$@"
