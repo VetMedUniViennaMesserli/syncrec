@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.tmp
+.venv/
+venv/
+.vscode/
+.idea/
+
+# Local to each recording machine: written by "Save as default" in the GUI.
+settings.json
+config.json
+recordings/

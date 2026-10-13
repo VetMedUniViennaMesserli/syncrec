@@ -1,0 +1,113 @@
+{
+  "session": {
+    "output_dir": "recordings",
+    "clip_name": "{date}_{time}",
+    "filename_pattern": "{clip}_{serial}.mp4",
+    "duration_s": 0.0,
+    "fill_missing_frames": true,
+    "segment_minutes": 60,
+    "min_free_gb": 5,
+    "write_preview_jpegs": false
+  },
+  "acquisition": {
+    "backend": "auto",
+    "fps": 25.0,
+    "exposure_us": 4000.0,
+    "gain_db": 0.0,
+    "pixel_format": "Mono8",
+    "binning": 1,
+    "roi": {
+      "width": 2048,
+      "height": 1536,
+      "offset_x": 0,
+      "offset_y": 0
+    },
+    "packet_size": 8192,
+    "inter_packet_delay_us": 0,
+    "queue_size": 120,
+    "grab_timeout_ms": 5000
+  },
+  "sync": {
+    "mode": "auto",
+    "ptp": {
+      "sync_timeout_s": 300.0,
+      "max_offset_ns": 1000,
+      "settle_s": 5.0,
+      "keep_enabled": true,
+      "action_lead_time_ms": 100.0,
+      "device_key": 305419896,
+      "group_key": 305419896,
+      "group_mask": 1,
+      "broadcast_address": "auto"
+    },
+    "hardware": {
+      "trigger_source": "Line1",
+      "trigger_activation": "RisingEdge",
+      "master_serial": null,
+      "master_line": "Line2",
+      "master_line_source": "ExposureActive"
+    },
+    "max_spread_ms": 1.0
+  },
+  "encoder": {
+    "ffmpeg": "ffmpeg",
+    "codec": "h264",
+    "hardware": "auto",
+    "quality": null,
+    "output_args": [
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "18",
+      "-pix_fmt",
+      "yuv420p"
+    ],
+    "input_args": [],
+    "loglevel": "error",
+    "write_metadata_csv": true
+  },
+  "cameras": {
+    "12345678": {
+      "enabled": true,
+      "name": "left",
+      "exposure_us": null,
+      "gain_db": null,
+      "roi": null,
+      "rotate_180": false
+    },
+    "12345679": {
+      "enabled": true,
+      "name": "right",
+      "exposure_us": 8000.0,
+      "gain_db": null,
+      "roi": null,
+      "rotate_180": false
+    },
+    "12345680": {
+      "enabled": true,
+      "name": "top",
+      "exposure_us": null,
+      "gain_db": null,
+      "roi": null,
+      "rotate_180": true
+    },
+    "12345681": {
+      "enabled": false,
+      "name": "spare",
+      "exposure_us": null,
+      "gain_db": null,
+      "roi": null,
+      "rotate_180": false
+    }
+  },
+  "dummy": {
+    "count": 8,
+    "width": 1024,
+    "height": 768,
+    "jitter_ms": 0.3,
+    "drop_rate": 0.0,
+    "serial_prefix": "DUMMY"
+  }
+}

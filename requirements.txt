@@ -1,0 +1,13 @@
+# Recorder dependencies (Python 3.9+).
+#
+# Install with:
+#   python -m pip install -r requirements.txt
+#
+# pypylon bundles the pylon runtime on Windows, so the Basler pylon Software Suite
+# does not have to be installed separately -- though installing it anyway gives you
+# the pylon Viewer and the IP configurator, which are handy when setting up GigE
+# cameras for the first time.
+
+pypylon>=4.0        # Basler camera SDK (also provides the camera emulator)
+numpy>=1.24
+PySide6>=6.5        # only needed for the GUI; the CLI runs without it
