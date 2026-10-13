@@ -26,7 +26,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set the version
         id: version
@@ -40,7 +40,7 @@ jobs:
           HOMEPAGE: "${{ github.server_url }}/${{ github.repository }}"
         run: bash packaging/linux/build.sh "${{ steps.version.outputs.version }}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: syncrec-${{ steps.version.outputs.version }}-deb
           path: dist/*.deb
@@ -54,9 +54,9 @@ jobs:
         os: [ubuntu-22.04, ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: syncrec-${{ needs.build.outputs.version }}-deb
           path: dist
@@ -81,7 +81,7 @@ jobs:
     permissions:
       contents: write          # attach the package to the release
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: syncrec-${{ needs.build.outputs.version }}-deb
           path: dist
